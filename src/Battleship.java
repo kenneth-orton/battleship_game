@@ -59,8 +59,6 @@ class Battleship {
         char[] shipTypes = {'P', 'D', 'S', 'B', 'C'};
         Board computerBoard = new Board();
         createComputerShips(computerBoard, shipTypes);
-        computerBoard.displayBoard();
-
 
         Board opponentHub = new Board();
         Board userBoard = new Board();
@@ -102,6 +100,7 @@ class Battleship {
                 }
                 break;
             case 'D':
+                board.addHit(x, y);
                 System.out.println("\nThe opponent has hit your Destroyer");
                 if(userDestroyer.isSunk()){
                     System.out.println("\nThe opponent sunk your Destroyer!");
@@ -109,6 +108,7 @@ class Battleship {
                 }
                 break;
             case 'S':
+                board.addHit(x, y);
                 System.out.println("\nThe opponent has hit your Submarine");
                 if(userSubmarine.isSunk()){
                     System.out.println("\nThe opponent sunk your Submarine!");
@@ -116,6 +116,7 @@ class Battleship {
                 }
                 break;
             case 'B':
+                board.addHit(x, y);
                 System.out.println("\nThe opponent has hit your Battleship");
                 if(userBattleship.isSunk()){
                     System.out.println("\nThe opponent sunk your Battleship!");
@@ -123,6 +124,7 @@ class Battleship {
                 }
                 break;
             case 'C':
+                board.addHit(x, y);
                 System.out.println("\nThe opponent has hit your Carrier");
                 if(userCarrier.isSunk()){
                     System.out.println("\nThe opponent sunk your Carrier!");
@@ -207,7 +209,7 @@ class Battleship {
     }
 
     protected static boolean gameStatus(Board userBoard, Board computerBoard){
-        return(userBoard.remainingGamePieces() == 0 || computerBoard.remainingGamePieces() == 0);
+        return(userBoard.remainingGamePieces() != 0 || computerBoard.remainingGamePieces() != 0);
     }
 
     protected static void displayGameBoards(Board userBoard, Board opponentBoard){
@@ -219,6 +221,7 @@ class Battleship {
 
     protected static void createUserShips(Board userBoard, char[] shipTypes){
         for(char type : shipTypes){
+            userBoard.displayBoard();
             switch(type){
                 case 'P':
                     userPatrol = addShipToUserBoard(type, userBoard);
