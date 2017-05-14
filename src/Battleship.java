@@ -12,7 +12,9 @@ class Battleship {
     private static Ship userDestroyer;
     private static Ship userBattleship;
     private static Ship userCarrier;
-
+    private static Point coords = new Point();
+    private static Point tempPoint;
+        
     public static void main(String[] args){
         System.out.println("Welcome to Battleship!");
         Scanner input = new Scanner(System.in);
@@ -72,63 +74,85 @@ class Battleship {
             }while(status);
 
             do{ //cpu fires
-                status = incomingFire(userBoard);
+                if(coords.isDefault()){
+                    Random rand = new Random();
+                    int x = rand.nextInt(10);
+                    int y = rand.nextInt(10);
+                    status = incomingFire(userBoard, x, y);
+                }else{
+                    tempPoint = coords.nearbyNeighbor();
+                    System.out.println(tempPoint.xValue() + ", " + tempPoint.yValue());
+                    status = incomingFire(userBoard, tempPoint.xValue(), tempPoint.yValue());
+                }
             }while(status);
         }
     }
     
-    protected static boolean incomingFire(Board board){
-        Random rand = new Random();
-        int x = rand.nextInt(10);
-        int y = rand.nextInt(10);
-        
+    protected static boolean incomingFire(Board board, int x, int y){
         switch(board.detectShot(x, y)){
             case 'M':
                 return true;
             case 'X': 
                 return true;
             case '_':
+                coords.setXVal(-1);
+                coords.setYVal(-1);
                 System.out.println("\nThe opponent fired but missed!");
                 board.addMiss(x, y);
                 break;
             case 'P':
                 board.addHit(x, y);
+                coords.setXVal(x);
+                coords.setYVal(y);
                 System.out.println("\nThe opponent has hit your Patrol Boat");
                 if(userPatrol.isSunk()){
                     System.out.println("\nThe opponent sunk your Patrol Boat!");
                     board.updateGamePieces();
+                    coords = new Point();
                 }
                 break;
             case 'D':
                 board.addHit(x, y);
+                coords.setXVal(x);
+                coords.setYVal(y);
                 System.out.println("\nThe opponent has hit your Destroyer");
                 if(userDestroyer.isSunk()){
                     System.out.println("\nThe opponent sunk your Destroyer!");
                     board.updateGamePieces();
+                    coords = new Point();
                 }
                 break;
             case 'S':
                 board.addHit(x, y);
+                coords.setXVal(x);
+                coords.setYVal(y);
                 System.out.println("\nThe opponent has hit your Submarine");
                 if(userSubmarine.isSunk()){
                     System.out.println("\nThe opponent sunk your Submarine!");
                     board.updateGamePieces();
+                    coords = new Point();
                 }
                 break;
             case 'B':
                 board.addHit(x, y);
+                coords.setXVal(x);
+                coords.setYVal(y);
                 System.out.println("\nThe opponent has hit your Battleship");
                 if(userBattleship.isSunk()){
                     System.out.println("\nThe opponent sunk your Battleship!");
                     board.updateGamePieces();
+                    coords = new Point();
                 }
                 break;
             case 'C':
                 board.addHit(x, y);
+                coords.setXVal(x);
+                coords.setYVal(y);
                 System.out.println("\nThe opponent has hit your Carrier");
                 if(userCarrier.isSunk()){
                     System.out.println("\nThe opponent sunk your Carrier!");
                     board.updateGamePieces();
+                    coords = new Point();
                 }
                 break;
         }

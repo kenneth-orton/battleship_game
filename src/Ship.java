@@ -10,6 +10,7 @@ class Ship {
         this.y = y;
         this.type = type;
         this.orientation = orientation;
+        this.hits = 0;
     }
 
     protected int xCoord(){
