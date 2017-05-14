@@ -1,7 +1,7 @@
 class Ship {
     private int x;
     private int y;
-    private int hits = 0;
+    private int hits;
     private char type;
     private char orientation;
 
@@ -22,6 +22,10 @@ class Ship {
 
     protected char direction(){
         return this.orientation;
+    }
+
+    protected char shipType(){
+        return this.type;
     }
 
     protected int shipLength(){
@@ -46,30 +50,34 @@ class Ship {
         return length;
     }
 
-    protected void detectHit(int x, int y) {
-        if(this.orientation == 'V'){
-            if(x == xCoord() && (y - yCoord()) < shipLength() && (y - yCoord()) >= 0){
-                System.out.println("Hit!");
-                this.hits += 1;
-            }else{
-                System.out.println("Miss!");
-            }
-        }else{
-            if(y == yCoord() && (x - xCoord()) < shipLength() && (x - xCoord()) >= 0){
-                System.out.println("Hit!");
-                this.hits += 1;
-            }else{
-                System.out.println("Miss!");
-            }
+    protected String shipName(){
+        String name = "";
+        switch(this.type){
+            case 'P':
+                name += "Patrol";
+                break;
+            case 'D':
+                name += "Destroyer";
+                break;
+            case 'S':
+                name += "Submarine";
+                break;
+            case 'B':
+                name += "Battleship";
+                break;
+            case 'C':
+                name += "Carrier";
+                break;
         }
+        return name;
+    }
+
+    protected void updateHits(){
+        this.hits += 1;
     }
 
     protected boolean isSunk(){
         return(this.hits == shipLength());
-    }
-
-    protected void printResults(){
-        System.out.println("(" + xCoord() + ", " + yCoord() + ") "  + shipLength() + " " + this.hits);
     }
 }
 

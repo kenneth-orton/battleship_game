@@ -2,10 +2,20 @@ import java.util.Scanner;
 import java.util.Random;
 
 class Battleship {
+    private static Ship cpuSubmarine;
+    private static Ship cpuPatrol;
+    private static Ship cpuDestroyer;
+    private static Ship cpuBattleship;
+    private static Ship cpuCarrier;
+    private static Ship userSubmarine;
+    private static Ship userPatrol;
+    private static Ship userDestroyer;
+    private static Ship userBattleship;
+    private static Ship userCarrier;
 
     public static void main(String[] args){
         System.out.println("Welcome to Battleship!");
-        Scanner response = new Scanner(System.in);
+        Scanner input = new Scanner(System.in);
         int answer = 0;
         while(answer != 3){
             System.out.print("Select an option:\n" +
@@ -13,7 +23,7 @@ class Battleship {
                                "\t2. Start Game\n" + 
                                "\t3. Quit\n" +
                                "Enter (1/2/3): ");
-            answer = response.nextInt();
+            answer = input.nextInt();
             switch(answer){
                 case 1:
                     displayRules();
@@ -28,8 +38,6 @@ class Battleship {
                     break;
             }
         }
-
-        //use two boards, one representing your board; the other representing opponents board;
     }
 
     protected static void displayRules(){
@@ -43,73 +51,251 @@ class Battleship {
                            "\tPatrol Boat: 2\n\n" + 
                            "The game pieces can be placed horizontally or vertically on the board\n" + 
                            "Each player takes turns firing a round at the coordinates of another user's\n" + 
-                           "board, not knowing where the other users Battleship pieces are placed\n" + 
-                           "The goal of the game is to destroy all of the enemies ships before they destroy yours\n");
+                           "board, not knowing where the opponents Battleship pieces are placed.\n" + 
+                           "The goal of the game is to destroy all of the enemie's ships before they destroy yours\n");
     }
 
     protected static void startGame(){
         char[] shipTypes = {'P', 'D', 'S', 'B', 'C'};
-        createComputerBoard(shipTypes);
-        createUserBoard(shipTypes);
+        Board computerBoard = new Board();
+        createComputerShips(computerBoard, shipTypes);
+        computerBoard.displayBoard();
+
+
+        Board opponentHub = new Board();
+        Board userBoard = new Board();
+        createUserShips(userBoard, shipTypes);
+
+        while(gameStatus(userBoard, computerBoard)){
+            boolean status = true;
+            displayGameBoards(userBoard, opponentHub);
+            do{ //user fires
+                status = outgoingFire(computerBoard, opponentHub);
+            }while(status);
+
+            do{ //cpu fires
+                status = incomingFire(userBoard);
+            }while(status);
+        }
     }
     
-    protected static void createUserBoard(char[] shipTypes){
-        Board userBoard = new Board();
+    protected static boolean incomingFire(Board board){
+        Random rand = new Random();
+        int x = rand.nextInt(10);
+        int y = rand.nextInt(10);
+        
+        switch(board.detectShot(x, y)){
+            case 'M':
+                return true;
+            case 'X': 
+                return true;
+            case '_':
+                System.out.println("\nThe opponent fired but missed!");
+                board.addMiss(x, y);
+                break;
+            case 'P':
+                board.addHit(x, y);
+                System.out.println("\nThe opponent has hit your Patrol Boat");
+                if(userPatrol.isSunk()){
+                    System.out.println("\nThe opponent sunk your Patrol Boat!");
+                    board.updateGamePieces();
+                }
+                break;
+            case 'D':
+                System.out.println("\nThe opponent has hit your Destroyer");
+                if(userDestroyer.isSunk()){
+                    System.out.println("\nThe opponent sunk your Destroyer!");
+                    board.updateGamePieces();
+                }
+                break;
+            case 'S':
+                System.out.println("\nThe opponent has hit your Submarine");
+                if(userSubmarine.isSunk()){
+                    System.out.println("\nThe opponent sunk your Submarine!");
+                    board.updateGamePieces();
+                }
+                break;
+            case 'B':
+                System.out.println("\nThe opponent has hit your Battleship");
+                if(userBattleship.isSunk()){
+                    System.out.println("\nThe opponent sunk your Battleship!");
+                    board.updateGamePieces();
+                }
+                break;
+            case 'C':
+                System.out.println("\nThe opponent has hit your Carrier");
+                if(userCarrier.isSunk()){
+                    System.out.println("\nThe opponent sunk your Carrier!");
+                    board.updateGamePieces();
+                }
+                break;
+        }
+        return false;
+    }
+
+    protected static boolean outgoingFire(Board computerBoard, Board opponentHub){
+        Scanner input = new Scanner(System.in);
+        System.out.print("\nEnter x coordinate to fire shot: ");
+        int x = input.nextInt();
+        System.out.print("Enter y coordinate to fire shot: ");
+        int y = input.nextInt();
+
+        switch(computerBoard.detectShot(x, y)){
+            case 'M':
+                System.out.println("\nYou've already fired in that area! Try again.");
+                return true;
+            case 'X':
+                System.out.println("\nYou've already fired in that area! Try again.");
+                return true;
+            case '_':
+                System.out.println("\nYou missed the target!");
+                opponentHub.addMiss(x, y);
+                computerBoard.addMiss(x, y);
+                break;
+            case 'P':
+                System.out.println("\nYou hit the opponents Patrol Boat!");
+                opponentHub.addHit(x, y);
+                computerBoard.addHit(x, y);
+                cpuPatrol.updateHits();
+                if(cpuPatrol.isSunk()){
+                    System.out.println("\nYou sunk the opponents Patrol Boat!");
+                    computerBoard.updateGamePieces();
+                }
+                break;
+            case 'D':
+                System.out.println("\nYou hit the opponents Destroyer!");
+                opponentHub.addHit(x, y);
+                computerBoard.addHit(x, y);
+                cpuDestroyer.updateHits();
+                if(cpuDestroyer.isSunk()){
+                    System.out.println("\nYou sunk the opponents Destroyer!");
+                    computerBoard.updateGamePieces();
+                }
+                break;
+            case 'S':
+                System.out.println("\nYou hit the opponents Submarine!");
+                opponentHub.addHit(x, y);
+                computerBoard.addHit(x, y);
+                cpuSubmarine.updateHits();
+                if(cpuSubmarine.isSunk()){
+                    System.out.println("\nYou sunk the opponents Submarine!");
+                    computerBoard.updateGamePieces();
+                }
+                break;
+            case 'B':
+                System.out.println("\nYou hit the opponents Battleship!");
+                opponentHub.addHit(x, y);
+                computerBoard.addHit(x, y);
+                cpuBattleship.updateHits();
+                if(cpuBattleship.isSunk()){
+                    System.out.println("\nYou sunk the opponents Battleship!");
+                    computerBoard.updateGamePieces();
+                }
+                break;
+            case 'C':
+                System.out.println("\nYou hit the opponents Carrier!");
+                opponentHub.addHit(x, y);
+                computerBoard.addHit(x, y);
+                cpuCarrier.updateHits();
+                if(cpuCarrier.isSunk()){
+                    System.out.println("\nYou sunk the opponents Carrier!");
+                    computerBoard.updateGamePieces();
+                }
+                break;
+        }
+        return false;
+    }
+
+    protected static boolean gameStatus(Board userBoard, Board computerBoard){
+        return(userBoard.remainingGamePieces() == 0 || computerBoard.remainingGamePieces() == 0);
+    }
+
+    protected static void displayGameBoards(Board userBoard, Board opponentBoard){
+        System.out.println("\nOpponent's Board");
+        opponentBoard.displayBoard();
+        System.out.println("\nYour Board");
+        userBoard.displayBoard();
+    }
+
+    protected static void createUserShips(Board userBoard, char[] shipTypes){
         for(char type : shipTypes){
             switch(type){
                 case 'P':
-                    userBoardCases("Patrol Boat", 'P', userBoard);
+                    userPatrol = addShipToUserBoard(type, userBoard);
                     break;
                 case 'D':
-                    userBoardCases("Destroyer", 'D', userBoard);
+                    userDestroyer = addShipToUserBoard(type, userBoard);
                     break;
                 case 'S':
-                    userBoardCases("Submarine", 'S', userBoard);
+                    userSubmarine = addShipToUserBoard(type, userBoard);
                     break;
                 case 'B':
-                    userBoardCases("Battleship", 'B', userBoard);
+                    userBattleship = addShipToUserBoard(type, userBoard);
                     break;
                 case 'C':
-                    userBoardCases("Carrier", 'C', userBoard);
+                    userCarrier = addShipToUserBoard(type, userBoard);
                     break;
             }
         }
     }
 
-    protected static void userBoardCases(String typeName, char type, Board userBoard){
+    protected static Ship addShipToUserBoard(char type, Board userBoard){
+        Ship ship = new Ship(0, 0, type, 'V');
         Scanner input = new Scanner(System.in);
         int xCoord = 0;
         int yCoord = 0;
         char orientation = 'a';
         while(true){
-            System.out.print("Enter the x coordinate for the " + typeName + ": ");
+            System.out.print("\nEnter the x coordinate for the " + ship.shipName() + ": ");
             xCoord = input.nextInt();
-            System.out.print("Enter the y coordinate for the " + typeName + ": ");
+            System.out.print("Enter the y coordinate for the " + ship.shipName() + ": ");
             yCoord = input.nextInt();
-            System.out.print("Enter the orientation for the " + typeName +"(Vertical[V]/Horizontal[H]): ");
-            orientation = input.next().toUpperCase().charAt(0);
-            Ship ship = new Ship(xCoord, yCoord, type, orientation);
+            System.out.print("Enter the orientation for the " + ship.shipName() +"(Vertical[V]/Horizontal[H]): ");
+            orientation = input.next("[a-zA-Z]").toUpperCase().charAt(0);
+            ship = new Ship(xCoord, yCoord, type, orientation);
             if(userBoard.doesPieceFit(ship)){
                 userBoard.addShip(ship); 
                 break;
             }
         }
+        return ship;
     }
 
-    protected static void createComputerBoard(char[] shipTypes){
-        Board computerBoard = new Board();
+    protected static void createComputerShips(Board computerBoard, char[] shipTypes){
         for(char type : shipTypes){
-            while(true){
-                Random rand = new Random();
-                int randX = rand.nextInt(10);
-                int randY = rand.nextInt(10);
-                char orientation = rand.nextBoolean() ? 'V' : 'H';
-                Ship ship = new Ship(randX, randY, type, orientation);
-                if(computerBoard.doesPieceFit(ship)){
-                    computerBoard.addShip(ship); 
+            switch(type){
+                case 'P':
+                    cpuPatrol = addShipToComputerBoard(type, computerBoard);
                     break;
-                }
+                case 'D':
+                    cpuDestroyer = addShipToComputerBoard(type, computerBoard);
+                    break;
+                case 'S':
+                    cpuSubmarine = addShipToComputerBoard(type, computerBoard);
+                    break;
+                case 'B':
+                    cpuBattleship = addShipToComputerBoard(type, computerBoard);
+                    break;
+                case 'C':
+                    cpuCarrier = addShipToComputerBoard(type, computerBoard);
+                    break;
             }
         }
+    }
+
+    protected static Ship addShipToComputerBoard(char type, Board computerBoard){
+        Ship ship;
+        while(true){
+            Random rand = new Random();
+            int randX = rand.nextInt(10);
+            int randY = rand.nextInt(10);
+            char orientation = rand.nextBoolean() ? 'V' : 'H';
+            ship = new Ship(randX, randY, type, orientation);
+            if(computerBoard.doesPieceFit(ship)){
+                computerBoard.addShip(ship); 
+                break;
+            }
+        }
+        return ship;
     }
 }

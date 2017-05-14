@@ -1,62 +1,29 @@
 class Board {
     private char[][] grid;
+    private int gamePieces = 5;
 
     Board() {
         grid = createGrid();
     }
 
-    protected void addShip(Ship ship){
-        switch(ship.direction()){
-            case 'V': 
-                
-                break;
-            case 'H':
-                break;
-        }
-        //this.grid[y][x] = 'O';
+    protected void addHit(int x, int y){
+        this.grid[y][x] = 'X';
     }
 
-    protected void addHits(int x, int y){
+    protected void addMiss(int x, int y){
+        this.grid[y][x] = 'M';
     }
 
-    protected void addMisses(int x, int y){
+    protected char detectShot(int x, int y){
+        return this.grid[y][x];
     }
 
-    protected void updateGrid(Ship ship, char orientation, int shipLength){
-        switch(orientation){
-            case 'V':
-                for(int i = ship.yCoord(); i < ship.yCoord() + shipLength; i ++){
-                    this.grid[i][ship.xCoord()] = 'O';
-                }
-                break;
-            case 'H':
-                for(int i = ship.xCoord(); i < ship.xCoord() + shipLength; i ++){
-                    this.grid[ship.yCoord()][i] = 'O';
-                }
-                break;
-        }
-
+    protected void updateGamePieces(){
+        this.gamePieces -= 1;
     }
 
-    protected boolean isOccupied(Ship ship, char orientation, int shipLength){
-        boolean answer = false;
-        switch(orientation){
-            case 'V':
-                for(int i = ship.yCoord(); i < ship.yCoord() + shipLength; i ++){
-                    if(this.grid[i][ship.xCoord()] == 'O'){
-                        answer = true;  
-                    }
-                }
-                break;
-            case 'H':
-                for(int i = ship.xCoord(); i < ship.xCoord() + shipLength; i ++){
-                    if(this.grid[ship.yCoord()][i] == 'O'){
-                        answer = true;
-                    }
-                }
-                break;
-        }
-        return answer;
+    protected int remainingGamePieces(){
+        return this.gamePieces;
     }
 
     protected static char[][] createGrid(){
@@ -78,26 +45,52 @@ class Board {
             }
             System.out.println();
         }
+        System.out.println();
     }
 
-    protected boolean doesPieceFit(Ship ship){
-        boolean answer = false;
-        int shipLength = ship.shipLength();
+    protected void addShip(Ship ship){
         switch(ship.direction()){
-            case 'V': 
-                if(ship.yCoord() + shipLength - 1 <= 9 && !isOccupied(ship, 'V', shipLength)){
-                    updateGrid(ship, 'V', shipLength);
-                    answer = true;
+            case 'V':
+                for(int i = ship.yCoord(); i < ship.yCoord() + ship.shipLength(); i ++){
+                    this.grid[i][ship.xCoord()] = ship.shipType();
                 }
                 break;
             case 'H':
-                if(ship.xCoord() + shipLength - 1 <= 9 && !isOccupied(ship, 'H', shipLength)){
-                    updateGrid(ship, 'H', shipLength);
-                    answer = true;
+                for(int i = ship.xCoord(); i < ship.xCoord() + ship.shipLength(); i ++){
+                    this.grid[ship.yCoord()][i] = ship.shipType();
+                }
+                break;
+        }
+
+    }
+
+    protected boolean doesPieceFit(Ship ship){
+        boolean answer = true;
+        switch(ship.direction()){
+            case 'V': 
+                // check if piece will fit on board, then see if space is already occupied
+                if(ship.yCoord() + ship.shipLength() - 1 <= 9){
+                    for(int i = ship.yCoord(); i < ship.yCoord() + ship.shipLength(); i ++){
+                        if(this.grid[i][ship.xCoord()] != '_'){
+                            return false;
+                        }
+                    }
+                }else{
+                    return false;
+                }
+                break;
+            case 'H':
+                if(ship.xCoord() + ship.shipLength() - 1 <= 9){
+                    for(int i = ship.xCoord(); i < ship.xCoord() + ship.shipLength(); i ++){
+                        if(this.grid[ship.yCoord()][i] != '_'){
+                            return false;
+                        }
+                    }
+                }else{
+                    return false;
                 }
                 break;
         }
         return answer;
     }
-
 }
