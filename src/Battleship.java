@@ -1,5 +1,4 @@
-import java.util.Scanner;
-import java.util.Random;
+import java.util.*;
 
 class Battleship {
     private static Ship cpuSubmarine;
@@ -12,8 +11,8 @@ class Battleship {
     private static Ship userDestroyer;
     private static Ship userBattleship;
     private static Ship userCarrier;
-    private static Point coords = new Point();
-    private static Point tempPoint;
+    private static Stack<Point> pointStack = new Stack<Point>();
+    private static ArrayList<Point> pointsNearby;
         
     public static void main(String[] args){
         System.out.println("Welcome to Battleship!");
@@ -74,85 +73,154 @@ class Battleship {
             }while(status);
 
             do{ //cpu fires
-                if(coords.isDefault()){
-                    Random rand = new Random();
-                    int x = rand.nextInt(10);
-                    int y = rand.nextInt(10);
-                    status = incomingFire(userBoard, x, y);
-                }else{
-                    tempPoint = coords.nearbyNeighbor();
-                    System.out.println(tempPoint.xValue() + ", " + tempPoint.yValue());
-                    status = incomingFire(userBoard, tempPoint.xValue(), tempPoint.yValue());
-                }
+                status = incomingFire(userBoard);
             }while(status);
+        }
+        if(userBoard.remainingGamePieces() > 0){
+            System.out.println("Congratulations! You destroyed all the computer's ships!");
+        }else{
+            System.out.println("Too Bad...the computer destroyed you!");
         }
     }
     
-    protected static boolean incomingFire(Board board, int x, int y){
+    protected static int currentDirection(Point startPoint, Point endPoint){
+        int direction = 0;
+        if(startPoint.xValue() == endPoint.xValue() && startPoint.yValue() > endPoint.yValue()){
+            direction = 0; // North
+        }else if(startPoint.xValue() < endPoint.xValue() && startPoint.yValue() == endPoint.yValue()){
+            direction = 1; // East
+        }else if(startPoint.xValue() == endPoint.xValue() && startPoint.yValue() < endPoint.yValue()){
+            direction = 2; // South
+        }else if(startPoint.xValue() > endPoint.xValue() && startPoint.yValue() == endPoint.yValue()){
+            direction = 3; // West
+        }
+        return direction;
+    }
+
+    protected static int reverseDirection(int direction){
+        int reverse = 0;
+        if(direction == 0){
+            reverse = 2;
+        }else if(direction == 1){
+            reverse = 3;
+        }else if(direction == 2){
+            reverse = 0;
+        }else if(direction == 3){
+            reverse = 1;
+        }
+        return reverse;
+    }
+
+    protected static boolean incomingFire(Board board){
+        int x = 0; 
+        int y = 0;
+        Random rand = new Random();
+        //either the first time firing or just sunk a ship
+        if(pointStack.empty()){
+            x = rand.nextInt(10);
+            y = rand.nextInt(10);
+        }else if(pointStack.size() == 1){
+            Point point = pointStack.peek();
+            pointsNearby = point.nearbyNeighbors();
+            int random = rand.nextInt(pointsNearby.size()); // might only have 2 nearest neighbors
+            x = pointsNearby.get(random).xValue();
+            y = pointsNearby.get(random).yValue();
+        }else if(pointStack.size() > 1){
+            Point endPoint = pointStack.pop();
+            // if missed target but hit more than once and ship not sunk yet, reverse direction
+            if(board.detectShot(endPoint.xValue(), endPoint.yValue()) == 'M'){
+                Point startPoint = pointStack.peek();
+                while(!pointStack.empty()){ // exhaust the stack to get first element
+                    startPoint = pointStack.pop();
+                }
+                int direction = reverseDirection(currentDirection(startPoint, endPoint));
+                pointStack.push(startPoint); // keep one item on stack because next hit will be pushed
+                pointsNearby = startPoint.nearbyNeighbors();
+                x = pointsNearby.get(direction).xValue();
+                y = pointsNearby.get(direction).yValue();
+            }else if(board.detectShot(endPoint.xValue(), endPoint.yValue()) == 'X'){
+                // if hit target but ship not sunk yet, maintain current direction
+                Point startPoint = pointStack.peek();
+                pointsNearby = endPoint.nearbyNeighbors();
+                int direction = currentDirection(startPoint, endPoint);
+                pointStack.push(endPoint);
+                if(direction > pointsNearby.size()){ // if reached end of grid
+                    direction = reverseDirection(direction);
+                    while(!pointStack.empty()){
+                        startPoint = pointStack.pop();
+                    }
+                    pointStack.push(startPoint); // keep at least one item on stack
+                    pointsNearby = startPoint.nearbyNeighbors();
+                }
+                x = pointsNearby.get(direction).xValue();
+                y = pointsNearby.get(direction).yValue();
+            }
+        }
         switch(board.detectShot(x, y)){
             case 'M':
                 return true;
             case 'X': 
                 return true;
             case '_':
-                coords.setXVal(-1);
-                coords.setYVal(-1);
                 System.out.println("\nThe opponent fired but missed!");
                 board.addMiss(x, y);
+                if(pointStack.size() > 1){
+                    pointStack.push(new Point(x, y));
+                }
                 break;
             case 'P':
                 board.addHit(x, y);
-                coords.setXVal(x);
-                coords.setYVal(y);
+                pointStack.push(new Point(x, y));
                 System.out.println("\nThe opponent has hit your Patrol Boat");
+                userPatrol.updateHits();
                 if(userPatrol.isSunk()){
                     System.out.println("\nThe opponent sunk your Patrol Boat!");
                     board.updateGamePieces();
-                    coords = new Point();
+                    pointStack = new Stack<Point>();
                 }
                 break;
             case 'D':
                 board.addHit(x, y);
-                coords.setXVal(x);
-                coords.setYVal(y);
+                pointStack.push(new Point(x, y));
                 System.out.println("\nThe opponent has hit your Destroyer");
+                userDestroyer.updateHits();
                 if(userDestroyer.isSunk()){
                     System.out.println("\nThe opponent sunk your Destroyer!");
                     board.updateGamePieces();
-                    coords = new Point();
+                    pointStack = new Stack<Point>();
                 }
                 break;
             case 'S':
                 board.addHit(x, y);
-                coords.setXVal(x);
-                coords.setYVal(y);
+                pointStack.push(new Point(x, y));
                 System.out.println("\nThe opponent has hit your Submarine");
+                userSubmarine.updateHits();
                 if(userSubmarine.isSunk()){
                     System.out.println("\nThe opponent sunk your Submarine!");
                     board.updateGamePieces();
-                    coords = new Point();
+                    pointStack = new Stack<Point>();
                 }
                 break;
             case 'B':
                 board.addHit(x, y);
-                coords.setXVal(x);
-                coords.setYVal(y);
+                pointStack.push(new Point(x, y));
                 System.out.println("\nThe opponent has hit your Battleship");
+                userBattleship.updateHits();
                 if(userBattleship.isSunk()){
                     System.out.println("\nThe opponent sunk your Battleship!");
                     board.updateGamePieces();
-                    coords = new Point();
+                    pointStack = new Stack<Point>();
                 }
                 break;
             case 'C':
                 board.addHit(x, y);
-                coords.setXVal(x);
-                coords.setYVal(y);
+                pointStack.push(new Point(x, y));
                 System.out.println("\nThe opponent has hit your Carrier");
+                userCarrier.updateHits();
                 if(userCarrier.isSunk()){
                     System.out.println("\nThe opponent sunk your Carrier!");
                     board.updateGamePieces();
-                    coords = new Point();
+                    pointStack = new Stack<Point>();
                 }
                 break;
         }
@@ -233,7 +301,7 @@ class Battleship {
     }
 
     protected static boolean gameStatus(Board userBoard, Board computerBoard){
-        return(userBoard.remainingGamePieces() != 0 || computerBoard.remainingGamePieces() != 0);
+        return(userBoard.remainingGamePieces() != 0 && computerBoard.remainingGamePieces() != 0);
     }
 
     protected static void displayGameBoards(Board userBoard, Board opponentBoard){
