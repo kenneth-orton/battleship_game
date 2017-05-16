@@ -1,1 +1,1 @@
-Main-Class: Battleship
+Main-Class: GamePlay
