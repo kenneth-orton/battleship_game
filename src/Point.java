@@ -39,18 +39,10 @@ class Point {
 	protected ArrayList<Point> nearbyNeighbors(){
         ArrayList<Point> pointsNearby = new ArrayList<Point>();
         // north (0), east (1), south (2), west (3)
-        if(new Point(x, y - 1).validPoint()){
-            pointsNearby.add(new Point(x, y - 1));
-        }
-        if(new Point(x + 1, y).validPoint()){
-            pointsNearby.add(new Point(x + 1, y));
-        }
-        if(new Point(x, y + 1).validPoint()){
-            pointsNearby.add(new Point(x, y + 1));
-        }
-        if(new Point(x - 1, y).validPoint()){
-            pointsNearby.add(new Point(x - 1, y));
-        }
+        pointsNearby.add(0, new Point(x, y - 1));
+        pointsNearby.add(1, new Point(x + 1, y));
+        pointsNearby.add(2, new Point(x, y + 1));
+        pointsNearby.add(3, new Point(x - 1, y));
         return pointsNearby;
     }
 

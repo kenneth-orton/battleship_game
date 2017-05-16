@@ -91,6 +91,7 @@ class GamePlay {
                 status = incomingFire(userBoard);
             }while(status);
         }
+        displayGameBoards(userBoard, opponentHub);
         if(userBoard.remainingGamePieces() > 0){
             System.out.println("Congratulations! You destroyed all the computer's ships!");
         }else{
@@ -136,9 +137,12 @@ class GamePlay {
         }else if(pointStack.size() == 1){
             Point point = pointStack.peek();
             pointsNearby = point.nearbyNeighbors();
-            int random = rand.nextInt(pointsNearby.size()); // might only have 2 nearest neighbors
+            int random = rand.nextInt(pointsNearby.size());
+            if(!pointsNearby.get(random).validPoint()){
+                return true;
+            }
             nextPoint = new Point(pointsNearby.get(random).xValue(), pointsNearby.get(random).yValue());
-        }else{ // stack won't ever get bigger than 3
+        }else{
             Point endPoint = pointStack.pop();
             // if missed target but hit more than once and ship not sunk yet, reverse direction
             if(board.detectShot(endPoint) == 'M'){
@@ -156,22 +160,20 @@ class GamePlay {
                 pointsNearby = endPoint.nearbyNeighbors();
                 int direction = currentDirection(startPoint, endPoint);
                 pointStack.push(endPoint);
-                nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
-                if(!nextPoint.validPoint()){ // if reached end of grid
-                    System.out.println("Reached End of grid");
+                if(!pointsNearby.get(direction).validPoint()){ // if reached end of grid
                     direction = reverseDirection(direction);
                     while(!pointStack.empty()){
                         startPoint = pointStack.pop();
                     }
                     pointStack.push(startPoint); // keep at least one item on stack
                     pointsNearby = startPoint.nearbyNeighbors();
-                    nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
                 }
+                nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
             }
         }
         switch(board.detectShot(nextPoint)){
             case 'M':
-                if(!pointStack.empty()){
+                if(pointStack.size() > 1){
                     pointStack.push(nextPoint);
                 }
                 return true;
@@ -334,6 +336,7 @@ class GamePlay {
     protected static void buildBoardManually(Board board, ArrayList<Ship> listOfShips){
         Scanner scanner = new Scanner(System.in);
         for(Ship ship : listOfShips){
+            board.displayBoard();
             while(true){
                 System.out.print("\nEnter the x coordinate for the " + ship.shipName() + ": ");
                 int xCoord = scanner.nextInt();
