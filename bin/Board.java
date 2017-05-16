@@ -6,16 +6,16 @@ class Board {
         grid = createGrid();
     }
 
-    protected void addHit(int x, int y){
-        this.grid[y][x] = 'X';
+    protected void addHit(Point point){
+        this.grid[point.yValue()][point.xValue()] = 'X';
     }
 
-    protected void addMiss(int x, int y){
-        this.grid[y][x] = 'M';
+    protected void addMiss(Point point){
+        this.grid[point.yValue()][point.xValue()] = 'M';
     }
 
-    protected char detectShot(int x, int y){
-        return this.grid[y][x];
+    protected char detectShot(Point point){
+        return this.grid[point.yValue()][point.xValue()];
     }
 
     protected void updateGamePieces(){
@@ -49,7 +49,7 @@ class Board {
     }
 
     protected void addShip(Ship ship){
-        switch(ship.direction()){
+        switch(ship.shipOrientation()){
             case 'V':
                 for(int i = ship.yCoord(); i < ship.yCoord() + ship.shipLength(); i ++){
                     this.grid[i][ship.xCoord()] = ship.shipType();
@@ -66,7 +66,7 @@ class Board {
 
     protected boolean doesPieceFit(Ship ship){
         boolean answer = true;
-        switch(ship.direction()){
+        switch(ship.shipOrientation()){
             case 'V': 
                 // check if piece will fit on board, then see if space is already occupied
                 if(ship.yCoord() + ship.shipLength() - 1 <= 9){

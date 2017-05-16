@@ -6,6 +6,11 @@ class Point {
     private int x;
     private int y;
 
+    Point(){
+        this.x = 0;
+        this.y = 0;
+    }
+
     Point(int x, int y){
         this.x = x;
         this.y = y;
@@ -20,11 +25,11 @@ class Point {
     }
 
     protected void setXVal(int xVal){
-        x = x;
+        this.x = xVal;
     }
 
     protected void setYVal(int yVal){
-        y = y;
+        this.y = yVal;
     }
 
     public String toString(){
@@ -52,5 +57,4 @@ class Point {
     protected boolean validPoint(){
         return(x >= MIN && x <= MAX && y >= MIN && y <= MAX);
     }
-
 }

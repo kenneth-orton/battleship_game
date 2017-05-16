@@ -1,84 +1,52 @@
-class Ship {
-    private int x;
-    private int y;
-    private int hits;
-    private char type;
-    private char orientation;
+abstract class Ship {
+    protected int x;
+    protected int y;
+    protected int hits = 0;
+    protected char type;
+    protected char orientation;
 
-    Ship(int x, int y, char type, char orientation){
-        this.x = x;
-        this.y = y;
+    Ship(Point point, char type, char orientation){
+        this.x = point.xValue();
+        this.y = point.yValue();
         this.type = type;
         this.orientation = orientation;
-        this.hits = 0;
     }
 
     protected int xCoord(){
-        return this.x;
+        return x;
     }
 
     protected int yCoord(){
-        return this.y;
+        return y;
     }
 
-    protected char direction(){
-        return this.orientation;
+    protected void setPoint(Point point){
+        this.x = point.xValue();
+        this.y = point.yValue();
+    }
+
+    protected void setOrientation(char newOrient){
+        this.orientation = newOrient;
+    }
+
+    protected char shipOrientation(){
+        return orientation;
     }
 
     protected char shipType(){
-        return this.type;
-    }
-
-    protected int shipLength(){
-        int length = 0;
-        switch(this.type){
-            case 'P':
-                length = 2;
-                break;
-            case 'D':
-                length = 3;
-                break;
-            case 'S':
-                length = 3;
-                break;
-            case 'B':
-                length = 4;
-                break;
-            case 'C':
-                length = 5;
-                break;
-        }
-        return length;
-    }
-
-    protected String shipName(){
-        String name = "";
-        switch(this.type){
-            case 'P':
-                name += "Patrol";
-                break;
-            case 'D':
-                name += "Destroyer";
-                break;
-            case 'S':
-                name += "Submarine";
-                break;
-            case 'B':
-                name += "Battleship";
-                break;
-            case 'C':
-                name += "Carrier";
-                break;
-        }
-        return name;
+        return type;
     }
 
     protected void updateHits(){
-        this.hits += 1;
+        hits += 1;
     }
 
     protected boolean isSunk(){
-        return(this.hits == shipLength());
+        return(hits == shipLength());
     }
+
+	protected abstract int shipLength();
+
+	protected abstract String shipName();
 }
 
