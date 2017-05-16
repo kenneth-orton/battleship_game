@@ -141,7 +141,9 @@ class GamePlay {
             if(!pointsNearby.get(random).validPoint()){
                 return true;
             }
-            nextPoint = new Point(pointsNearby.get(random).xValue(), pointsNearby.get(random).yValue());
+            //nextPoint = new Point(pointsNearby.get(random).xValue(), pointsNearby.get(random).yValue());
+            nextPoint.setXVal(pointsNearby.get(random).xValue());
+            nextPoint.setYVal(pointsNearby.get(random).yValue());
         }else{
             Point endPoint = pointStack.pop();
             // if missed target but hit more than once and ship not sunk yet, reverse direction
@@ -153,7 +155,9 @@ class GamePlay {
                 }
                 pointStack.push(startPoint);
                 pointsNearby = startPoint.nearbyNeighbors();
-                nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
+                //nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
+                nextPoint.setXVal(pointsNearby.get(direction).xValue());
+                nextPoint.setYVal(pointsNearby.get(direction).yValue());
             }else if(board.detectShot(endPoint) == 'X'){
                 // if hit target but ship not sunk yet, maintain current direction
                 Point startPoint = pointStack.peek();
@@ -168,7 +172,9 @@ class GamePlay {
                     pointStack.push(startPoint); // keep at least one item on stack
                     pointsNearby = startPoint.nearbyNeighbors();
                 }
-                nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
+                //nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
+                nextPoint.setXVal(pointsNearby.get(direction).xValue());
+                nextPoint.setYVal(pointsNearby.get(direction).yValue());
             }
         }
         switch(board.detectShot(nextPoint)){
