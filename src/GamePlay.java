@@ -141,7 +141,6 @@ class GamePlay {
             if(!pointsNearby.get(random).validPoint()){
                 return true;
             }
-            //nextPoint = new Point(pointsNearby.get(random).xValue(), pointsNearby.get(random).yValue());
             nextPoint.setXVal(pointsNearby.get(random).xValue());
             nextPoint.setYVal(pointsNearby.get(random).yValue());
         }else{
@@ -155,7 +154,6 @@ class GamePlay {
                 }
                 pointStack.push(startPoint);
                 pointsNearby = startPoint.nearbyNeighbors();
-                //nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
                 nextPoint.setXVal(pointsNearby.get(direction).xValue());
                 nextPoint.setYVal(pointsNearby.get(direction).yValue());
             }else if(board.detectShot(endPoint) == 'X'){
@@ -172,7 +170,6 @@ class GamePlay {
                     pointStack.push(startPoint); // keep at least one item on stack
                     pointsNearby = startPoint.nearbyNeighbors();
                 }
-                //nextPoint = new Point(pointsNearby.get(direction).xValue(), pointsNearby.get(direction).yValue());
                 nextPoint.setXVal(pointsNearby.get(direction).xValue());
                 nextPoint.setYVal(pointsNearby.get(direction).yValue());
             }
@@ -183,8 +180,8 @@ class GamePlay {
                     pointStack.push(nextPoint);
                 }
                 return true;
-            case 'X': 
-                if(!pointStack.empty()){
+            case 'X':
+                if(pointStack.size() > 1){
                     pointStack.push(nextPoint);
                 }
                 return true;
