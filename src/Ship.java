@@ -38,7 +38,7 @@ abstract class Ship {
     }
 
     protected void updateHits(){
-        hits += 1;
+        this.hits += 1;
     }
 
     protected boolean isSunk(){
