@@ -56,7 +56,7 @@ class GamePlay {
                            "The game pieces can be placed horizontally or vertically on the board\n" + 
                            "Each player takes turns firing a round at the coordinates of another user's\n" + 
                            "board, not knowing where the opponents Battleship pieces are placed.\n" + 
-                           "The goal of the game is to destroy all of the enemie's ships before they destroy yours\n");
+                           "The goal of the game is to destroy all of the enemy's ships before they destroy yours\n");
     }
 
     protected static void startGame(){
