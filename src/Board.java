@@ -1,4 +1,4 @@
-class Board {
+	class Board {
     private char[][] grid;
     private int gamePieces = 5;
 
