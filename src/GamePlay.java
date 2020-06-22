@@ -20,21 +20,28 @@ class GamePlay {
 		Scanner scanner = new Scanner(System.in);
 		int answer = 0;
 		while (answer != 3) {
-			System.out.print("Select an option:\n" + "\t1. Explain Rules\n" + "\t2. Start Game\n" + "\t3. Quit\n"
+			System.out.print("\nSelect an option:\n" + "\t1. Explain Rules\n" + "\t2. Start Game\n" + "\t3. Quit\n"
 					+ "Enter (1/2/3): ");
-			answer = scanner.nextInt();
-			switch (answer) {
-			case 1:
-				displayRules();
-				break;
-			case 2:
-				startGame();
-				break;
-			case 3:
-				break;
-			default:
-				System.out.println("Not a valid choice, please try again.");
-				break;
+			
+			try {
+				answer = scanner.nextInt();
+				
+				switch (answer) {
+				case 1:
+					displayRules();
+					break;
+				case 2:
+					startGame(scanner);
+					break;
+				case 3:
+					break;
+				default:
+					System.out.println("Not a valid choice, please try again.");
+					break;
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("\nYou did not enter a number. Try again.");
+				scanner.next();
 			}
 		}
 		scanner.close();
@@ -56,7 +63,7 @@ class GamePlay {
 		return yesOrNo.matches("^[yYnN]+");
 	}
 
-	protected static void startGame() {
+	protected static void startGame(Scanner scanner) {
 		Board computerBoard = new Board();
 		ArrayList<Ship> cpuFleet = fleetContainer(cpuPatrol, cpuDestroyer, cpuSubmarine, cpuBattleship, cpuCarrier);
 		buildBoardRandomly(computerBoard, cpuFleet);
@@ -66,7 +73,6 @@ class GamePlay {
 		ArrayList<Ship> userFleet = fleetContainer(userPatrol, userDestroyer, userSubmarine, userBattleship,
 				userCarrier);
 
-		Scanner scanner = new Scanner(System.in);
 		char input = '0';
 
 		do {
@@ -104,7 +110,6 @@ class GamePlay {
 		} else {
 			System.out.println("Too Bad...the computer destroyed you!\n");
 		}
-		scanner.close();
 	}
 
 	protected static int currentDirection(Point startPoint, Point endPoint) {
@@ -135,7 +140,6 @@ class GamePlay {
 		return reverse;
 	}
 
-	// Need to fix bug where if computer shoots at a spot that already has a hit the program freezes
 	protected static boolean incomingFire(Board userBoard, Board userHub, Scanner scanner) {
 		boolean success = false;
 		Random rand = new Random();
@@ -201,10 +205,10 @@ class GamePlay {
 
 		switch (userHub.detectShot(nextPoint)) {
 		case 'M': // already shot here
+		case 'X': // already shot here
 			if (pointStack.size() > 1) {
 				pointStack.push(nextPoint);
 			}
-		case 'X': // already shot here
 			success = true;
 			break;
 		case '_':
