@@ -135,6 +135,7 @@ class GamePlay {
 		return reverse;
 	}
 
+	// Need to fix bug where if computer shoots at a spot that already has a hit the program freezes
 	protected static boolean incomingFire(Board userBoard, Board userHub, Scanner scanner) {
 		boolean success = false;
 		Random rand = new Random();
